@@ -18,6 +18,10 @@ impl Disk {
         }
     }
 
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
     pub fn inside(&self, x: u32, y: u32) -> bool {
         let center_x = self.left + self.width / 2;
         let center_y = self.top + self.width / 2;
@@ -100,6 +104,26 @@ impl Disk {
             }
         }
 
+    }
+
+    pub fn backgrounds_sums<I>(&self, img: &I) -> (u64, [u64; 3])
+        where I: GenericImage<Pixel = Rgb<u8>>
+    {
+        let mut sums = [0u64; 3];
+        let mut count = 0;
+        for x in self.left..(self.left + self.width) {
+            for y in self.top..(self.top + self.width) {
+                let pixel = img.get_pixel(x, y);
+                if !self.inside(x, y) {
+                    count += 1;
+                    for i in 0..sums.len() {
+                        sums[i] += pixel[i] as u64;
+                    }
+                }
+            }
+        }
+
+        (count, sums)
     }
 }
 
