@@ -118,11 +118,7 @@ impl Disk {
 }
 
 fn abs_diff(a: u32, b: u32) -> u32 {
-    if a < b {
-        (b - a)
-    } else {
-        (a - b)
-    }
+    if a < b { (b - a) } else { (a - b) }
 }
 
 fn square_abs_diff(a: u32, b: u32) -> u32 {
