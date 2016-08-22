@@ -37,23 +37,17 @@ impl Disk {
         where I: GenericImage<Pixel = Rgb<u8>>
     {
         let mut sums = [0u32; 3];
-        let mut count = 0;
         for x in self.left..(self.left + self.width) {
             for y in self.top..(self.top + self.width) {
                 let pixel = img.get_pixel(x, y);
-                if self.inside(x, y) {
-                    count += 1;
-                    for i in 0..sums.len() {
-                        sums[i] += pixel[i] as u32;
-                    }
+                for i in 0..sums.len() {
+                    sums[i] += pixel[i] as u32;
                 }
             }
         }
 
         for channel in &mut sums {
-            if count > 0 {
-                *channel /= count;
-            }
+            *channel /= self.width * self.width;
         }
 
         Rgb { data: [sums[0] as u8, sums[1] as u8, sums[2] as u8] }
@@ -63,23 +57,19 @@ impl Disk {
         where I: GenericImage<Pixel = Rgb<u8>>
     {
         let mut sum = 0u64;
-        let mut count = 0u64;
 
         for x in self.left..(self.left + self.width) {
             for y in self.top..(self.top + self.width) {
                 let pixel = img.get_pixel(x, y);
-                if self.inside(x, y) {
-                    count += pixel.data.len() as u64;
-                    for (channel_pixel, channel_self) in pixel.data
-                        .into_iter()
-                        .zip(&self.color.data) {
-                        sum += square_abs_diff(*channel_pixel as u32, *channel_self as u32) as u64
-                    }
+                for (channel_pixel, channel_self) in pixel.data
+                    .into_iter()
+                    .zip(&self.color.data) {
+                    sum += square_abs_diff(*channel_pixel as u32, *channel_self as u32) as u64
                 }
             }
         }
 
-        sum as f64 / count as f64
+        sum as f64 / (self.width * self.width * 3) as f64
     }
 
     pub fn split(&self) -> [Disk; 4] {
